@@ -23,24 +23,54 @@ HungH206
 
 **Claim comment**
 
-[PENDING — post the claim comment, then paste its permalink and text here. Drafted and
-graded ready-to-post by repro-check in live claim-only mode (verdict: accept):
+https://github.com/codepath/pathreview-ai301-fa26-s1/issues/26#issuecomment-5982161503
 
-> Hi, I'd like to work on this as a first contribution (following up on my earlier claim
-> comment above). The `/health` endpoint currently hardcodes `safety_events_last_hour` to
-> `0` instead of reading from the safety layer. My plan is to look at
-> `SafetyMonitor.get_event_count()` in `safety/monitoring.py` and wire its per-type counts
-> into `api/routes/health.py`'s response. I'll report back with a reproduction of the
-> current always-zero behavior before opening a PR.
-
-Note: an earlier, generic claim comment ("I would like to claim this issue for Unit 2") is
-already posted on this issue from 2026-09-23. The draft above is meant to go up as a
-follow-up with the specifics that comment lacked.]
+Hi, I'd like to work on this as a first contribution (following up on my earlier claim comment above). The `/health` endpoint currently hardcodes `safety_events_last_hour` to `0` instead of reading from the safety layer. My plan is to look at `SafetyMonitor.get_event_count()` in `safety/monitoring.py` and wire its per-type counts into `api/routes/health.py`'s response. I'll report back with a reproduction of the current always-zero behavior before opening a PR.
 
 **Reproduction comment**
 
-[PENDING — requires forking Path Review, cloning the fork, setting up the sandbox
-environment, and actually reproducing the bug before this can be written. Not started yet.]
+https://github.com/codepath/pathreview-ai301-fa26-s1/issues/26#issuecomment-5982172892
+
+> Hi, I'd like to work on this as a first contribution (following up on my earlier claim comment above). The `/health` endpoint currently hardcodes `safety_events_last_hour` to `0` instead of reading from the safety layer. My plan is to look at `SafetyMonitor.get_event_count()` in `safety/monitoring.py` and wire its per-type counts into `api/routes/health.py`'s response. I'll report back with a reproduction of the current always-zero behavior before opening a PR.
+
+Reproduced: `/health` reports `"safety_events_last_hour": 0` while `SafetyMonitor` holds recorded events.
+
+**Environment:** macOS 26.3.1 (arm64), Python 3.12.13, repo at commit `f89c06f` (main). Backing services from the repo's `docker-compose.yml` (`docker compose up -d db redis`: postgres:16-alpine on 5433, redis:7-alpine on 6379), `.env` copied from `.env.example`, `alembic upgrade head`, app run with `uvicorn api.main:app --port 8000`. redis-py 8.1.0, fastapi 0.142.2.
+
+**Steps:**
+
+1. Record three safety events through the real `SafetyMonitor`, against the same Redis the app uses (`log_events.py`, run from the repo root):
+
+```python
+import redis
+from safety.monitoring import SafetyMonitor
+r = redis.Redis.from_url("redis://localhost:6379/0")
+for k in r.scan_iter("safety:events:*"): r.delete(k)
+m = SafetyMonitor(r)
+m.log_event("pii_detected", {"field": "email"})
+m.log_event("pii_detected", {"field": "phone"})
+m.log_event("injection_attempt", {"source": "resume"})
+print({t: m.get_event_count(t) for t in sorted(m.VALID_EVENT_TYPES)})
+```
+
+```
+$ python log_events.py
+{'bias_detected': 0, 'content_filtered': 0, 'injection_attempt': 1, 'pii_detected': 2, 'rate_limited': 0}
+```
+
+2. Query the health endpoint:
+
+```
+$ curl -s -w "\nHTTP %{http_code}\n" localhost:8000/health
+{"detail":{"status":"unhealthy","dependencies":{"postgres":"unhealthy","redis":"unhealthy","vector_db":"healthy"},"safety_events_last_hour":0,"timestamp":"2026-10-04T03:03:39.290105"}}
+HTTP 503
+```
+
+**Expected:** `safety_events_last_hour` reflects the 3 events the monitor reports in step 1.
+
+**Actual:** it is `0`. `api/routes/health.py` sets the field to the literal `0` (line 26) and again in its "safety events" block (line 80); nothing in the handler reads `SafetyMonitor`, so the value can't change no matter how many events are recorded.
+
+**Note on the 503:** the endpoint returns 503 with postgres and redis marked unhealthy even though both containers are up. That comes from two separate issues (#61, the raw `"SELECT 1"` string under SQLAlchemy 2.x, and #62, the probe reading `settings.redis_host`), not from this one. The `safety_events_last_hour` value is still visible in the 503 body, so it doesn't block this reproduction, and I'm not touching those probes here.
 
 ## Eval iterations
 

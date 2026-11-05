@@ -55,10 +55,16 @@ happened; these entries are the toolkit's own timeline.
 All four entries are graded. Keep every heading below, and fill each
 one in the week it belongs to.
 
-**Unit 5: [one line on the tool work]**
+**Unit 5: Grew my issue-select skill into issue-scout and wrote its search strategy (2026-11-04)**
 
-[2-4 sentences: what you built (the scout, your strategy), what broke
-or fell short, what changed because of it.]
+I turned my Unit 1 rubric into a scout. It runs three `gh search issues` queries that come from my
+fit profile (Python and TypeScript API/endpoint work, with Docker issues filtered out), then ranks
+the results and grades the top five. My first scan graded five issues: it accepted three and
+rejected two. When I checked the rejects by hand, Gulliver#38 turned out to be a false reject. My
+Unclaimed check had counted two open PRs that were only cross-referenced in the timeline, but both
+of them actually close #37. I tightened Unclaimed so a PR only counts if it closes the issue or
+names its number. I also changed one ranking filter from one issue per repo to one issue per owner,
+because one owner had taken two of the five slots with issues from two different repos.
 
 **Unit 6: [one line on the tool work]**
 

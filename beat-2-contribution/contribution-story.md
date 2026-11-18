@@ -9,10 +9,9 @@ files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
 **Student:** [Student name]
-**GitHub Username:** [your GitHub username, exactly as it appears on your profile - no @, no
-profile URL. Your comments upstream are identified by this name.]
-**Issue:** [GitHub issue link]
-**Pull Request:** [GitHub PR link, once opened]
+**GitHub Username:** HungH206
+**Issue:** https://github.com/AcademySoftwareFoundation/dna/issues/254
+**Pull Request:** https://github.com/AcademySoftwareFoundation/dna/pull/292
 
 One repository, built across units 5 to 8, telling the whole story of your real
 contribution. Fill it as you work, not at the end — the sections below ask for evidence that
@@ -249,20 +248,20 @@ built, decisions you made when you made them, wrong turns included.]
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when opened]
+**PR Link:** https://github.com/AcademySoftwareFoundation/dna/pull/292
 
-**PR Description:** [what the PR says; much of the content above
-adapts into it]
+**PR Description:** Adds an optional `PROJECT_ALLOWED_TYPES` environment variable (comma-separated
+ShotGrid `sg_type` values). `ShotgridProvider.get_projects_for_user` adds an `sg_type` "in" filter
+to its `Project` query when the variable is set, and behaves as before when it is unset or blank.
+Five new tests cover unset, blank, single type, multiple types and the existing user filter, and
+the variable is documented in `QUICKSTART.md`. The description says openly that PR #262 targets the
+same issue and offers to close mine in favor of it.
 
 **Maintainer Feedback:**
 
-- [Date]: [feedback received, or "none yet"; silence is a normal
-  state and costs you nothing]
-- [Date]: [how you addressed it]
+- 2026-11-18: none yet. EasyCLA and DCO checks pass.
 
-**Status:** [Awaiting review / Iterating / Merged / Closed. The
-status is a fact you record, never a grade: the PR is graded as
-opened.]
+**Status:** Awaiting review
 
 **Toolkit**
 

@@ -86,24 +86,37 @@ drafted, what you did with the draft.]
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs in your own words: how you searched, what your scan
-surfaced, what your scout's verdict said, why this issue fits your
-profile, and what you hope to learn. If your scout's verdict on it
-was reject and you chose it anyway, say so here and say why; choosing
-against your own tool silently is what loses points. Close with an
-honest read of the tool itself: where the scout fell short on a real
-wild search and what you changed or would change, or what convinced
-you it held up. **Record the link to your claim comment in this section too.**
-Not claimed yet? Write `claim pending` and today's date where the link goes,
-and add the link the moment your claim lands.]
+I picked [AcademySoftwareFoundation/dna#254](https://github.com/AcademySoftwareFoundation/dna/issues/254),
+"Shotgrid: Add env var to configure project types for users", from the Issue Selection site. I set
+the filters from my fit profile (Python, backend/API work). I also ran my own scout, whose scan
+surfaced three accepted issues in other repos, but #254 was not one of them, so I graded it by
+direct URL. My scout **rejected** it: Maintainer alive, Repo in use, Scope, Policy and the
+good-first-issue label all passed, but Unclaimed failed because open PR #262 by another contributor
+closes #254, and the maintainer had replied "Looks good" on it. I chose it anyway because the fix
+is small and bounded (add an `sg_type` filter to `get_projects_for_user` from an environment
+variable, with tests), it matches the Python API work I want practice with, and #262 has stalled:
+on 2026-11-18 the maintainer wrote that "something got a little messed up on this branch." I am not
+claiming over the author. My claim comment asks whether #262 is still being worked on and offers to
+take a smaller piece or the whole fix if it was dropped:
+https://github.com/AcademySoftwareFoundation/dna/issues/254#issuecomment-6994478920 (2026-11-18).
+If #262 merges first, I will pick another issue.
+
+On the tool: on a real search it fell short in one way I fixed and one I only noted. It rejected
+Gulliver#38 on two PRs that only cross-referenced it (both close #37), so I rewrote the Unclaimed
+check to count a PR only if it closes the issue or names its number. It also cannot see that a
+repo is two days old, since repo age is not in the search fields, so I judge that by hand. Its
+reject on #254 was correct, and I am overriding it knowingly.
 
 **Toolkit**
 
-- Tool: issue-scout (your scout: your search strategy, your rubric),
-  and how you used it
-- What it produced: [the scan and its verdict on this issue, described]
-- Difficulties: [where it fell short, or "none met" if none did]
-- What changed: [what you patched or would update, or "nothing"]
+- Tool: issue-scout (my search strategy of three `gh search issues` queries and nine ranking
+  filters, plus my Unit 1 rubric), run as a scan and as a direct grade of #254
+- What it produced: a scan of 292 results graded down to five (three accepted, two rejected), and
+  a reject on #254 for the open PR #262
+- Difficulties: a false reject on Gulliver#38 from timeline cross-references; two issues from one
+  owner in the top five; no repo-age signal
+- What changed: patched the Unclaimed check in `rubric.md`, changed the diversity filter to one
+  issue per owner, and logged both in `scan-notes.md`
 
 ---
 

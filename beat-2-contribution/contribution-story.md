@@ -8,7 +8,7 @@ format criteria grade exactly that. Your course repo link is the whole submissio
 files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
-**Student:** [Student name]
+**Student:** [Hung Hoang]
 **GitHub Username:** HungH206
 **Issue:** https://github.com/AcademySoftwareFoundation/dna/issues/254
 **Pull Request:** https://github.com/AcademySoftwareFoundation/dna/pull/292
@@ -65,11 +65,9 @@ of them actually close #37. I tightened Unclaimed so a PR only counts if it clos
 names its number. I also changed one ranking filter from one issue per repo to one issue per owner,
 because one owner had taken two of the five slots with issues from two different repos.
 
-**Unit 6: [one line on the tool work]**
+**Unit 6: Installed the voice guard, wrote my Upstream rules, and wrote a repo memory file (2026-11-18)**
 
-[2-4 sentences: the voice-guard, the repo-memory file. What broke or
-fell short, and what changed because of it. "Nothing broke" counts when
-it is true - say how you know.]
+I merged my three voice guides into one, added four rules for claims, questions and pings, and installed the hook that checks every `gh issue/pr comment` before it posts. Its first real run stopped the claim I had already posted, because "open a PR within a few days" breaks my own rule against dates, and a second draft then broke my one-question rule, so I rewrote it twice until it passed. I also swapped in the scope-feasible check and difficulty note in my rubric, and wrote a 29-line `CLAUDE.local.md` for the dna repo that is kept out of my PR with `.git/info/exclude`. What fell short: the posted claim still has the old wording, and re-grading dna#254 changed nothing, so I have not yet tested the scope patch on an issue with an open edge.
 
 **Unit 7: [one line on the tool work]**
 
@@ -104,7 +102,7 @@ On the tool: on a real search it fell short in one way I fixed and one I only no
 Gulliver#38 on two PRs that only cross-referenced it (both close #37), so I rewrote the Unclaimed
 check to count a PR only if it closes the issue or names its number. It also cannot see that a
 repo is two days old, since repo age is not in the search fields, so I judge that by hand. Its
-reject on #254 was correct, and I am overriding it knowingly.
+reject on #254 was correct, and I am overriding it knowingly. In Unit 6 I replaced my scope check with the staff `scope-feasible` row plus a difficulty note, and re-graded #254: it is still a reject on Unclaimed (open PR #262), and the difficulty note says **straightforward**, because the issue names the function and gives a code sketch. The patch changed nothing for this issue, so I have not tested it on one with an open edge.
 
 **Toolkit**
 
@@ -115,7 +113,8 @@ reject on #254 was correct, and I am overriding it knowingly.
 - Difficulties: a false reject on Gulliver#38 from timeline cross-references; two issues from one
   owner in the top five; no repo-age signal
 - What changed: patched the Unclaimed check in `rubric.md`, changed the diversity filter to one
-  issue per owner, and logged both in `scan-notes.md`
+  issue per owner, and in Unit 6 replaced the scope check with `scope-feasible` and added the
+  difficulty note; all three are logged in `scan-notes.md`
 
 ---
 
@@ -150,31 +149,35 @@ reject on #254 was correct, and I am overriding it knowingly.
 
 **Environment Setup**
 
-[What a stranger would need to stand this up: your operating system,
-the relevant versions (language, runtime, package manager, the project
-itself), and how you set the project up. Then the challenges you faced
-and how you solved them, or that none came up.]
+macOS 26.3.1 (Apple silicon), Python 3.11.1, pytest 7.4.3, shotgun_api3 3.9.2, repo at upstream `main` commit `ac6f610` (2026-11-18). I cloned my fork `HungH206/dna_hung`, made a venv in `backend/` (`python3 -m venv .venv`) and installed `backend/requirements.txt` plus `pytest pytest-asyncio pytest-cov`. The challenge was that the repo's `make test` runs through Docker, which I avoid, so I ran pytest directly with `PYTHONPATH=src`; the ShotGrid client is mocked in the existing tests, so no ShotGrid site or credentials were needed. My disk filled up partway through and I had to free space before I could run anything.
 
 **Steps to Reproduce**
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Check out `ac6f610`, create the venv and install the requirements (above).
+2. Read `ShotgridProvider.get_projects_for_user` in `backend/src/dna/prodtrack_providers/shotgrid.py`: the project query is `self._sg.find("Project", filters=[["users", "is", user]], ...)`, with no `sg_type` filter and no `PROJECT_ALLOWED_TYPES` anywhere.
+3. Keep that original `shotgrid.py`, add the five tests from my fork's commit `2569688` (`TestShotgridProviderProjectAllowedTypes` in `backend/tests/test_shotgrid_provider.py`), and from `backend/` run `PYTHONPATH=src python -m pytest tests/test_shotgrid_provider.py -q --no-cov -k ProjectAllowedTypes`.
+4. Observed: with `PROJECT_ALLOWED_TYPES=Feature` set, the filters passed to `find` are only the `users` filter, so no project-type restriction is applied.
 
 **Reproduction Evidence**
 
-- **Commit showing reproduction:** [link to commit in your fork]
-- **Screenshots/logs:** [if applicable]
-- **My findings:** [what you discovered during reproduction; an
-  honest, evidenced cannot-reproduce that led you to re-pick or ask
-  the maintainer belongs here and costs you nothing]
+- **Commit showing reproduction:** https://github.com/HungH206/dna_hung/commit/2569688 (the tests and the fix are in one commit; the failure is reproduced by running those tests against the original `shotgrid.py`)
+- **Screenshots/logs:**
+
+```
+tests/test_shotgrid_provider.py ..FF.                                    [100%]
+E   AssertionError: assert ['sg_type', 'in', ['Feature']] in [['users', 'is', {'email': 'artist@example.com', 'id': 1, 'type': 'HumanUser'}]]
+E   AssertionError: assert ['sg_type', 'in', ['Feature', 'Commercial', 'Episodic']] in [['users', 'is', {'email': 'artist@example.com', 'id': 1, 'type': 'HumanUser'}]]
+================== 2 failed, 3 passed, 27 deselected in 0.14s ==================
+```
+
+- **My findings:** the two tests that need the type filter fail on the original code, and the three that describe behavior that already works (no filter configured, blank value, user filter kept) pass. So the filter the issue asks for is missing today. This shows what query the code builds, not what a live ShotGrid server returns for it, because I did not test against a real site.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: repro-check, with the wild scope, against my claim draft and my repro report
+- What it produced: a reject on the first run, because my claim said "open a PR within a few days" and that promises a timeline; the repro report passed all its checks
+- Difficulties: the issue is a feature request, so there is no crash to reproduce, and "failure signature" had to mean "the missing filter"; the posted claim already contained the timeline sentence before the guard existed
+- What changed: I rewrote the claim to name a first step and a report-back instead of a date, and it now passes; the original wording is still in my posted comment
 
 ---
 

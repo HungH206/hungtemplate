@@ -56,14 +56,7 @@ one in the week it belongs to.
 
 **Unit 5: Grew my issue-select skill into issue-scout and wrote its search strategy (2026-11-04)**
 
-I turned my Unit 1 rubric into a scout. It runs three `gh search issues` queries that come from my
-fit profile (Python and TypeScript API/endpoint work, with Docker issues filtered out), then ranks
-the results and grades the top five. My first scan graded five issues: it accepted three and
-rejected two. When I checked the rejects by hand, Gulliver#38 turned out to be a false reject. My
-Unclaimed check had counted two open PRs that were only cross-referenced in the timeline, but both
-of them actually close #37. I tightened Unclaimed so a PR only counts if it closes the issue or
-names its number. I also changed one ranking filter from one issue per repo to one issue per owner,
-because one owner had taken two of the five slots with issues from two different repos.
+I turned my Unit 1 rubric into a scout. It runs three `gh search issues` queries that come from my fit profile (Python and TypeScript API/endpoint work, with Docker issues filtered out), then ranks the results and grades the top five. My first scan graded five issues: it accepted three and rejected two. When I checked the rejects by hand, Gulliver#38 turned out to be a false reject. My Unclaimed check had counted two open PRs that were only cross-referenced in the timeline, but both of them actually close #37. I tightened Unclaimed so a PR only counts if it closes the issue or names its number. I also changed one ranking filter from one issue per repo to one issue per owner, because one owner had taken two of the five slots with issues from two different repos.
 
 **Unit 6: Installed the voice guard, wrote my Upstream rules, and wrote a repo memory file (2026-11-18)**
 
@@ -82,37 +75,20 @@ My playbook came from six recent merged PRs by outside contributors: a maintaine
 ## Why I Chose This Issue
 
 I picked [AcademySoftwareFoundation/dna#254](https://github.com/AcademySoftwareFoundation/dna/issues/254),
-"Shotgrid: Add env var to configure project types for users", from the Issue Selection site. I set
-the filters from my fit profile (Python, backend/API work). I also ran my own scout, whose scan
-surfaced three accepted issues in other repos, but #254 was not one of them, so I graded it by
-direct URL. My scout **rejected** it: Maintainer alive, Repo in use, Scope, Policy and the
-good-first-issue label all passed, but Unclaimed failed because open PR #262 by another contributor
-closes #254, and the maintainer had replied "Looks good" on it. I chose it anyway because the fix
-is small and bounded (add an `sg_type` filter to `get_projects_for_user` from an environment
-variable, with tests), it matches the Python API work I want practice with, and #262 has stalled:
-on 2026-11-18 the maintainer wrote that "something got a little messed up on this branch." I am not
-claiming over the author. My claim comment asks whether #262 is still being worked on and offers to
+"Shotgrid: Add env var to configure project types for users", from the Issue Selection site. I set the filters from my fit profile (Python, backend/API work). I also ran my own scout, whose scan surfaced three accepted issues in other repos, but #254 was not one of them, so I graded it by direct URL. My scout **rejected** it: Maintainer alive, Repo in use, Scope, Policy and the good-first-issue label all passed, but Unclaimed failed because open PR #262 by another contributor closes #254, and the maintainer had replied "Looks good" on it. I chose it anyway because the fix is small and bounded (add an `sg_type` filter to `get_projects_for_user` from an environment variable, with tests), it matches the Python API work I want practice with, and #262 has stalled: on 2026-11-18 the maintainer wrote that "something got a little messed up on this branch." I am not claiming over the author. My claim comment asks whether #262 is still being worked on and offers to
 take a smaller piece or the whole fix if it was dropped:
 https://github.com/AcademySoftwareFoundation/dna/issues/254#issuecomment-6994478920 (2026-11-18).
 If #262 merges first, I will pick another issue.
 
-On the tool: on a real search it fell short in one way I fixed and one I only noted. It rejected
-Gulliver#38 on two PRs that only cross-referenced it (both close #37), so I rewrote the Unclaimed
-check to count a PR only if it closes the issue or names its number. It also cannot see that a
-repo is two days old, since repo age is not in the search fields, so I judge that by hand. Its
-reject on #254 was correct, and I am overriding it knowingly. In Unit 6 I replaced my scope check with the staff `scope-feasible` row plus a difficulty note, and re-graded #254: it is still a reject on Unclaimed (open PR #262), and the difficulty note says **straightforward**, because the issue names the function and gives a code sketch. The patch changed nothing for this issue, so I have not tested it on one with an open edge.
+On the tool: on a real search it fell short in one way I fixed and one I only noted. It rejected Gulliver#38 on two PRs that only cross-referenced it (both close #37), so I rewrote the Unclaimed check to count a PR only if it closes the issue or names its number. It also cannot see that a repo is two days old, since repo age is not in the search fields, so I judge that by hand. Its reject on #254 was correct, and I am overriding it knowingly. In Unit 6 I replaced my scope check with the staff `scope-feasible` row plus a difficulty note, and re-graded #254: it is still a reject on Unclaimed (open PR #262), and the difficulty note says **straightforward**, because the issue names the function and gives a code sketch. The patch changed nothing for this issue, so I have not tested it on one with an open edge.
 
 **Toolkit**
 
 - Tool: issue-scout (my search strategy of three `gh search issues` queries and nine ranking
   filters, plus my Unit 1 rubric), run as a scan and as a direct grade of #254
-- What it produced: a scan of 292 results graded down to five (three accepted, two rejected), and
-  a reject on #254 for the open PR #262
-- Difficulties: a false reject on Gulliver#38 from timeline cross-references; two issues from one
-  owner in the top five; no repo-age signal
-- What changed: patched the Unclaimed check in `rubric.md`, changed the diversity filter to one
-  issue per owner, and in Unit 6 replaced the scope check with `scope-feasible` and added the
-  difficulty note; all three are logged in `scan-notes.md`
+- What it produced: a scan of 292 results graded down to five (three accepted, two rejected), and a reject on #254 for the open PR #262
+- Difficulties: a false reject on Gulliver#38 from timeline cross-references; two issues from one owner in the top five; no repo-age signal
+- What changed: patched the Unclaimed check in `rubric.md`, changed the diversity filter to one issue per owner, and in Unit 6 replaced the scope check with `scope-feasible` and added the difficulty note; all three are logged in `scan-notes.md`
 
 ---
 
@@ -151,10 +127,10 @@ macOS 26.3.1 (Apple silicon), Python 3.11.1, pytest 7.4.3, shotgun_api3 3.9.2, r
 
 **Steps to Reproduce**
 
-1. Check out `ac6f610`, create the venv and install the requirements (above).
-2. Read `ShotgridProvider.get_projects_for_user` in `backend/src/dna/prodtrack_providers/shotgrid.py`: the project query is `self._sg.find("Project", filters=[["users", "is", user]], ...)`, with no `sg_type` filter and no `PROJECT_ALLOWED_TYPES` anywhere.
-3. Keep that original `shotgrid.py`, add the five tests from my fork's commit `2569688` (`TestShotgridProviderProjectAllowedTypes` in `backend/tests/test_shotgrid_provider.py`), and from `backend/` run `PYTHONPATH=src python -m pytest tests/test_shotgrid_provider.py -q --no-cov -k ProjectAllowedTypes`.
-4. Observed: with `PROJECT_ALLOWED_TYPES=Feature` set, the filters passed to `find` are only the `users` filter, so no project-type restriction is applied.
+1. I checked out `ac6f610`, created the venv and installed the requirements (above).
+2. I read `ShotgridProvider.get_projects_for_user` in `backend/src/dna/prodtrack_providers/shotgrid.py`: the project query is `self._sg.find("Project", filters=[["users", "is", user]], ...)`, with no `sg_type` filter and no `PROJECT_ALLOWED_TYPES` anywhere.
+3. I kept that original `shotgrid.py`, added the five tests from my fork's commit `2569688` (`TestShotgridProviderProjectAllowedTypes` in `backend/tests/test_shotgrid_provider.py`), and from `backend/` ran `PYTHONPATH=src python -m pytest tests/test_shotgrid_provider.py -q --no-cov -k ProjectAllowedTypes`.
+4. What I observed: with `PROJECT_ALLOWED_TYPES=Feature` set, the filters passed to `find` are only the `users` filter, so no project-type restriction is applied.
 
 **Reproduction Evidence**
 
@@ -232,11 +208,11 @@ The tests mock the `Shotgun` client. I did not test against a live ShotGrid site
 
 **2026-11-18**
 
-Cloned the repo, made a venv, and ran the existing ShotGrid tests (27 passed). Read `get_projects_for_user` and confirmed it filters only by user. Wrote five tests first; two failed on the original code, as planned.
+I cloned the repo, made a venv, and ran the existing ShotGrid tests (27 passed). Read `get_projects_for_user` and confirmed it filters only by user. Wrote five tests first; two failed on the original code, as planned.
 
 **2026-11-18**
 
-Added `_get_allowed_project_types()` and the `sg_type` filter, then a `QUICKSTART.md` row. black wanted to reformat my first version of `shotgrid.py`, so I ran black. Full suite: 860 passed, 92% coverage. I committed with `git commit -s` for the DCO check.
+I added `_get_allowed_project_types()` and the `sg_type` filter, then a `QUICKSTART.md` row. black wanted to reformat my first version of `shotgrid.py`, so I ran black. Full suite: 860 passed, 92% coverage. I committed with `git commit -s` for the DCO check.
 
 **2026-11-18**
 
@@ -255,12 +231,8 @@ Pushed to my fork and opened PR #292. EasyCLA first failed because I had not sig
 
 **PR Link:** https://github.com/AcademySoftwareFoundation/dna/pull/292
 
-**PR Description:** Adds an optional `PROJECT_ALLOWED_TYPES` environment variable (comma-separated
-ShotGrid `sg_type` values). `ShotgridProvider.get_projects_for_user` adds an `sg_type` "in" filter
-to its `Project` query when the variable is set, and behaves as before when it is unset or blank.
-Five new tests cover unset, blank, single type, multiple types and the existing user filter, and
-the variable is documented in `QUICKSTART.md`. The description says openly that PR #262 targets the
-same issue and offers to close mine in favor of it.
+**PR Description:** Adds an optional `PROJECT_ALLOWED_TYPES` environment variable (comma-separated ShotGrid `sg_type` values). `ShotgridProvider.get_projects_for_user` adds an `sg_type` "in" filter to its `Project` query when the variable is set, and behaves as before when it is unset or blank.
+Five new tests cover unset, blank, single type, multiple types and the existing user filter, and the variable is documented in `QUICKSTART.md`. The description says openly that PR #262 targets the same issue and offers to close mine in favor of it.
 
 **Maintainer Feedback:**
 

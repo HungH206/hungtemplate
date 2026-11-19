@@ -1,4 +1,4 @@
-# Contribution: [Issue Title]
+# Contribution: Shotgrid: Add env var to configure project types for users
 
 Path: `beat-2-contribution/contribution-story.md`
 
@@ -8,7 +8,7 @@ format criteria grade exactly that. Your course repo link is the whole submissio
 files and no evidence uploads are part of Assignment 5.
 
 **Contribution Number:** [1]
-**Student:** [Hung Hoang]
+**Student:** Hung Hoang
 **GitHub Username:** HungH206
 **Issue:** https://github.com/AcademySoftwareFoundation/dna/issues/254
 **Pull Request:** https://github.com/AcademySoftwareFoundation/dna/pull/292
@@ -69,15 +69,13 @@ because one owner had taken two of the five slots with issues from two different
 
 I merged my three voice guides into one, added four rules for claims, questions and pings, and installed the hook that checks every `gh issue/pr comment` before it posts. Its first real run stopped the claim I had already posted, because "open a PR within a few days" breaks my own rule against dates, and a second draft then broke my one-question rule, so I rewrote it twice until it passed. I also swapped in the scope-feasible check and difficulty note in my rubric, and wrote a 29-line `CLAUDE.local.md` for the dna repo that is kept out of my PR with `.git/info/exclude`. What fell short: the posted claim still has the old wording, and re-grading dna#254 changed nothing, so I have not yet tested the scope patch on an issue with an open edge.
 
-**Unit 7: [one line on the tool work]**
+**Unit 7: Installed the ship-gate and wrote a three-check manifest for dna (2026-11-18)**
 
-[2-4 sentences: the ship-gate and your gate manifest. What it produced
-on your real branch, what fought you, what changed because of it.]
+My manifest lists black, isort and the backend tests, taken from CONTRIBUTING.md and the repo's formatting workflow, with each command written for a fresh shell (`.venv/bin/black`) and Docker's `make test` in the excluded table. The hook test gave two stops, one from the voice guard and one from the gate. On my branch the gate passed, but I ran it after I had already opened PR #292, so it checked finished work, and it cannot see the DCO sign-off, which I checked by hand. I also ran plan-check, which rejected my first plan for having no repro evidence, no expected test output and no risks, and I fixed all three.
 
-**Unit 8: [one line on the tool work]**
+**Unit 8: Installed the PR monitor and wrote my playbook from dna's real review times (2026-11-18)**
 
-[2-4 sentences: the PR-monitor and your playbook. What it read, what it
-drafted, what you did with the draft.]
+My playbook came from six recent merged PRs by outside contributors: a maintainer usually replied within 0 to 1 days and the slowest took 6, so I nudge on day 8. I ran the monitor once on PR #292; it drafted a wait note, which was right, because nothing in the thread needed an answer, so I posted nothing. It did mislabel the state as FEEDBACK-IN because of the EasyCLA bot's comment, and it found a hole in my playbook: a nudge tags the last maintainer to comment and none had commented, so I rewrote that rule to name the maintainer from the issue thread. The PR is under a day old, so I have not tested the reply or nudge drafts on a real review.
 
 ---
 
@@ -122,26 +120,26 @@ reject on #254 was correct, and I am overriding it knowingly. In Unit 6 I replac
 
 **Problem Description**
 
-[In your own words, what is broken or missing?]
+DNA shows a user every ShotGrid project they belong to. A studio cannot limit which kinds of projects (by ShotGrid's project type, `sg_type`) are available inside DNA, and the issue asks for an environment variable that does that.
 
 **Expected Behavior**
 
-[What should happen?]
+When `PROJECT_ALLOWED_TYPES` is set (for example `Feature,Commercial`), `get_projects_for_user` returns only the user's projects whose `sg_type` is in that list. When it is unset, nothing changes.
 
 **Current Behavior**
 
-[What actually happens?]
+`get_projects_for_user` filters projects only by the user, so every project the user belongs to comes back, whatever its type, and there is no setting to change that.
 
 **Affected Components**
 
-[Which parts of the codebase are involved?]
+`ShotgridProvider.get_projects_for_user` in `backend/src/dna/prodtrack_providers/shotgrid.py`, its tests in `backend/tests/test_shotgrid_provider.py`, and the environment-variable table in `QUICKSTART.md`. The base class, the mock provider and the API route in `main.py` are not touched.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code, reading the repo with my `CLAUDE.local.md` notes (none of my graded skills were used for this section)
+- What it produced: the file and function to change and the other places that mention it (base class, mock provider, route)
+- Difficulties: none met
+- What changed: nothing
 
 ---
 
@@ -185,67 +183,71 @@ E   AssertionError: assert ['sg_type', 'in', ['Feature', 'Commercial', 'Episodic
 
 **Analysis**
 
-[Your analysis of the root cause: what is causing the issue, traced
-to the files and functions involved.]
+`get_projects_for_user` in `shotgrid.py` finds the user by email, then queries `Project` with only `filters=[["users", "is", user]]`. There is no `sg_type` filter and nothing in the file reads a project-type setting, so every project the user belongs to is returned. The route in `main.py` just calls the provider, so the gap is in the provider alone. My reproduction agrees: against the original code the two type tests fail with only the users filter in the query, and the three tests for behavior that already works pass.
 
 **Proposed Solution**
 
-[High-level description of your fix approach, and what you are
-deliberately NOT changing.]
+Add an optional `PROJECT_ALLOWED_TYPES` environment variable, a comma-separated list of ShotGrid `sg_type` values. A small helper `_get_allowed_project_types()` reads it at call time, trims whitespace and drops empty entries. When the list is not empty, `get_projects_for_user` appends `["sg_type", "in", allowed_types]` to its filters; unset or blank leaves behavior unchanged. Document the variable in `QUICKSTART.md`. Not changing: the mock provider, the base class, the API route, or any validation of which type names exist.
 
 **Implementation Plan**
 
-1. [Modify file X to do Y]
-2. [Add or change Z]
-3. [Update tests]
+1. Add tests in `test_shotgrid_provider.py` for unset, blank, one type, several types with spaces, and the users filter still applying; run them on the original code and confirm the type tests fail.
+2. Add `_get_allowed_project_types()` and use it in `get_projects_for_user`.
+3. Add one `PROJECT_ALLOWED_TYPES` row to the `QUICKSTART.md` environment table.
+4. Run black and isort checks, then the full backend suite; expect every existing test and the five new ones to pass, with coverage at or above 90%.
 
-[Record deviations here as they happen: what changed mid-build and
-why. A recorded deviation is honest work; silent drift is not.]
+Test plan: re-run the step-1 command after the fix and expect `5 passed` (the two that failed now pass, the three controls unchanged). Risks: the tests mock the `Shotgun` client, so I have not checked against a live ShotGrid site; PR #262 targets the same issue and the maintainers decide which to prefer.
+
+No deviations from this plan so far.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: plan-check (wild scope), on `plan.md` and `plan-comment.md`
+- What it produced: a reject on my first drafts and an accept on the revised ones
+- Difficulties: the first drafts quoted no repro evidence, had no test plan with an expected output, and listed no risks; the procedure also expects the repro evidence in a posted comment, which this unit says not to post, so I quoted it inside the plan
+- What changed: I added a repro-evidence block, a test plan that expects `5 passed`, and a risks section, and rewrote the plan comment to name #262 first
 
 ---
 
 ## Testing Strategy
 
-[What observable checks prove the fix: your reproduction steps re-run
-against the built change (before and after), and the repo's own test
-suite or checks with the outcome shown. "Tests pass" with nothing
-observable named is not a strategy.]
+The reproduction command is `cd backend && PYTHONPATH=src .venv/bin/python -m pytest tests/test_shotgrid_provider.py -q --no-cov -k ProjectAllowedTypes`.
+
+- **Before:** against the original `shotgrid.py`, 2 failed and 3 passed; the failures show only the users filter in the query: `assert ['sg_type', 'in', ['Feature']] in [['users', 'is', {...}]]`.
+- **After:** on the branch, the same command gives `5 passed`.
+- **Repo checks (from my ship manifest):** `black --check src/ tests/` and `isort --check-only src/ tests/` report no changes, and the full backend suite gives `860 passed` with `92%` coverage (the project requires 90% or higher).
+
+The tests mock the `Shotgun` client. I did not test against a live ShotGrid site.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: ship manifest and the ship-gate (it runs the manifest's three checks), plus `test_evidence.md`
+- What it produced: before and after output for the reproduction and the three check results, saved in `test_evidence.md`
+- Difficulties: the repo's `make test` uses Docker, so I wrote the equivalent venv command in the manifest and listed `make test` in its excluded table with the reason
+- What changed: I wrote each check the way it runs in a fresh shell (`.venv/bin/black`, not `black`)
 
 ---
 
 ## Implementation Notes
 
-[A running log, added to as you work. Date each entry. What you
-built, decisions you made when you made them, wrong turns included.]
+**2026-11-18**
 
-**[Date]**
+Cloned the repo, made a venv, and ran the existing ShotGrid tests (27 passed). Read `get_projects_for_user` and confirmed it filters only by user. Wrote five tests first; two failed on the original code, as planned.
 
-[Entry]
+**2026-11-18**
 
-**[Date]**
+Added `_get_allowed_project_types()` and the `sg_type` filter, then a `QUICKSTART.md` row. black wanted to reformat my first version of `shotgrid.py`, so I ran black. Full suite: 860 passed, 92% coverage. I committed with `git commit -s` for the DCO check.
 
-[Entry]
+**2026-11-18**
+
+Pushed to my fork and opened PR #292. EasyCLA first failed because I had not signed the CLA; after signing, DCO and EasyCLA both passed. Order matters here: I opened the PR before installing the ship-gate and before running plan-check, so both ran on the finished branch, not ahead of it.
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: Claude Code, with `CLAUDE.local.md` and the voice guard
+- What it produced: the tests-first fix, and the commands that kept black, isort and DCO sign-off right
+- Difficulties: my disk filled up mid-work and stopped my commands until I freed space; I also let a timeline sentence ("within a few days") into my claim before the guard existed
+- What changed: I cleared space, and I rewrote the claim to a first step with a report-back instead of a date
 
 ---
 
@@ -262,16 +264,19 @@ same issue and offers to close mine in favor of it.
 
 **Maintainer Feedback:**
 
-- 2026-11-18: none yet. EasyCLA and DCO checks pass.
+- 2026-11-18: none yet. EasyCLA and DCO checks pass, and the only comment on the PR is the EasyCLA bot's.
+- 2026-11-18: ran my PR monitor; it drafted a wait note, and I posted nothing. My playbook says to wait 7 quiet days before one nudge.
 
 **Status:** Awaiting review
 
 **Toolkit**
 
-- Tool:
-- What it produced:
-- Difficulties:
-- What changed:
+- Tool: the ship-gate (my ship manifest, plus my pr-precheck from Unit 4 on the branch, plan, test evidence and description), and the voice guard on the PR text
+- What it produced: PASS on my branch: the three manifest checks (black, isort, backend tests) were ok, and pr-precheck passed all six of its checks
+- Difficulties: I opened PR #292 before I installed the gate, so the PASS came after the PR was already open, not before it; the gate also cannot see the DCO sign-off, so I checked `git log -1` by hand and found `Signed-off-by`; `make test` needs Docker, so it sits in my manifest's excluded table
+- What changed: nothing in the PR, because it passed; next time I would install the gate and run plan-check before pushing
+
+---
 
 ---
 
@@ -279,25 +284,21 @@ same issue and offers to close mine in favor of it.
 
 **Technical Skills Gained**
 
-[What you learned technically, named concretely.]
+I learned to test a function that calls an outside service by mocking its client, and to read an environment variable at call time so a test can patch it. I also learned this project's contribution mechanics: an EasyCLA signature, a DCO `Signed-off-by` on every commit with `git commit -s`, Black and isort formatting, and a 90% coverage floor. And I learned to read a GitHub timeline, because a PR can claim an issue without showing up on its page.
 
 **Challenges Overcome**
 
-[What was hard and how you solved it; point at the real events, the
-Toolkit blocks above are full of them.]
+The hardest part was working on an issue that already had an open PR (#262): I asked on the issue first, said so in my PR description, and kept my claim to a first step instead of a date after my voice guard flagged it. My scout also falsely rejected Gulliver#38, which I fixed by narrowing what counts as a claiming PR. And my disk filled up mid-work, which stopped my commands until I freed space.
 
 **What I'd Do Differently Next Time**
 
-[Reflection on your process.]
+I would run plan-check and the ship-gate before opening the PR, not after, and I would install the voice guard before posting my claim so the timeline sentence never went up. I would also give the maintainer longer than a few hours to answer my question on the issue before opening a competing PR.
 
 ---
 
 ## Resources Used
 
-[What actually helped, not a reading list. List things this story
-already shows you using: the doc you followed to set the environment
-up, the thread that explained the bug, the person who answered you.
-One real entry beats ten plausible ones.]
-
-- [Link to documentation that helped]
-- [Discussion, issue, or post that helped]
+- dna's CONTRIBUTING.md (CLA, DCO, Black and isort, the 90% coverage rule): https://github.com/AcademySoftwareFoundation/dna/blob/main/CONTRIBUTING.md
+- The issue and its sketch of the filter: https://github.com/AcademySoftwareFoundation/dna/issues/254
+- PR #262 and the maintainer's comments on it, which showed me the doc row to add and that its branch had stalled: https://github.com/AcademySoftwareFoundation/dna/pull/262
+- The repo's backend formatting workflow (`.github/workflows/backend-formatting.yml`), which told me CI runs black and isort, not ruff

@@ -238,8 +238,9 @@ Five new tests cover unset, blank, single type, multiple types and the existing 
 
 - 2026-11-18: none yet. EasyCLA and DCO checks pass, and the only comment on the PR is the EasyCLA bot's.
 - 2026-11-18: ran my PR monitor; it drafted a wait note, and I posted nothing. My playbook says to wait 7 quiet days before one nudge.
+- 2026-11-21: PR #262 was merged by the maintainer at 18:59 UTC, and one minute later the maintainer closed my PR #292 with the comment "Sorry but this was already picked up by someone else". Issue #254 closed with it. I had not nudged (my threshold was day 8), and I did not reply after the close.
 
-**Status:** Awaiting review
+**Status:** Closed (not merged; the maintainer merged #262, which fixes the same issue)
 
 **Toolkit**
 

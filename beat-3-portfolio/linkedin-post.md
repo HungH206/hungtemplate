@@ -1,0 +1,8 @@
+I contributed to DNA, an open-source technology that allows movie studios to look at the project types that are accessible within the system. The new test failed before I made my changes, and it passes successfully.
+
+This is my first contribution to open source projects through an organization's repository called Academy Software Foundation, an open source collaborative technology from Academy of Motion Picture Arts and Sciences with The Linux Foundation. I've built a scout with Claude Code to look for open-source issues that needed contribution. I saw an issue with the Tagline "good-first-issue" that is an additional feature for Dailies Notes Assistant (DNA). It was an interesting experience to start my first open source project.
+
+The scout has checked for beginner-friendly issues, and told me that someone else was already working on this issue. I still went ahead because I want to work on it while knowing that it might not be accepted, and got to work on my own approach. 
+
+In short, the maintainer merged another contributor's fix for the same issue on November 21, and my pull request was closed without review. Next time my scout warns me that someone else is already working on an issue, I will check for competing work early, wait for maintainer response before written any change attempts, or pick a different issue when a competing pull request is already open.
+More about this project: https://github.com/AcademySoftwareFoundation/dna/pull/292
